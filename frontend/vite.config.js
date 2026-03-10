@@ -69,18 +69,19 @@ export default defineConfig(async ({ mode }) => {
 })
 
 async function importFrappeUIPlugin(isDev) {
-	if (isDev) {
-		try {
-			const module = await import('../frappe-ui/vite')
-			return module.default
-		} catch (error) {
-			console.warn(
-				'Local frappe-ui not found, falling back to npm package:',
-				error.message
-			)
-		}
+	try {
+		// Try to import from npm package
+		const module = await import('frappe-ui/vite')
+		return module.default
+	} catch (error) {
+		console.warn(
+			'Failed to import frappe-ui/vite:',
+			error.message
+		)
+		// Fallback: create a dummy plugin if import fails
+		return () => ({
+			name: 'frappe-ui-fallback',
+			apply: 'pre',
+		})
 	}
-	// Fall back to npm package if local import fails
-	const module = await import('frappe-ui/vite')
-	return module.default
 }
